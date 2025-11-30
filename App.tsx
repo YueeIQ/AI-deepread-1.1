@@ -37,12 +37,13 @@ const App: React.FC = () => {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
             setReadLogs(parsed);
+            // Default to history view
             if (parsed.length === 0) {
                 setStatus(AppStatus.IDLE);
             }
         } else {
-            // Reset if data is malformed
             setReadLogs([]);
+            setStatus(AppStatus.IDLE);
         }
       } catch (e) {
         console.error("Failed to load history", e);
@@ -50,14 +51,14 @@ const App: React.FC = () => {
       }
     } else {
         setStatus(AppStatus.IDLE);
-        setReadLogs([]); // Ensure explicitly empty array
+        setReadLogs([]);
     }
   }, []);
 
   // Calculate stats whenever logs change
   useEffect(() => {
-    // Defensive check
-    if (!readLogs || !Array.isArray(readLogs)) return;
+    // Defensive check to ensure readLogs is an array
+    if (!Array.isArray(readLogs)) return;
 
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -72,9 +73,7 @@ const App: React.FC = () => {
     };
 
     readLogs.forEach(log => {
-      // Defensive check for log data integrity
       if (!log || !log.completedAt) return;
-      
       const logDate = new Date(log.completedAt);
       if (logDate >= oneWeekAgo) newStats.thisWeek++;
       if (logDate.getFullYear() === thisYear) {
@@ -123,7 +122,8 @@ const App: React.FC = () => {
       setActiveTab('summary');
       setIsChatOpen(false); // Reset chat state
       
-      const alreadyRead = Array.isArray(readLogs) && readLogs.some(log => log.title === result.title);
+      const logs = Array.isArray(readLogs) ? readLogs : [];
+      const alreadyRead = logs.some(log => log.title === result.title);
       setCurrentBookIsRead(alreadyRead);
 
       // Reset chat for new book session
@@ -177,7 +177,6 @@ const App: React.FC = () => {
     if (!bookData) return;
     if (currentBookIsRead) return;
 
-    // Guard against undefined readLogs
     const currentLogs = Array.isArray(readLogs) ? readLogs : [];
     const filteredLogs = currentLogs.filter(l => l.title !== bookData.title);
 

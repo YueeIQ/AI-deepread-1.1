@@ -91,7 +91,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ chapters, introduction, onMar
                       </div>
                       <h5 className="text-xs font-bold text-ink-500 mb-6 uppercase tracking-widest flex items-center relative z-10">
                           <Quote className="w-4 h-4 mr-2 text-ink-400" />
-                          核心原文摘录
+                          核心原文摘录 (Key Quotes)
                       </h5>
                       <div className="space-y-6 relative z-10">
                           {chapter.keyQuotes.map((quote, i) => (

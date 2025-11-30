@@ -12,7 +12,7 @@ const bookAnalysisSchema: Schema = {
     coverImageDescription: { type: Type.STRING, description: "关于书籍封面的简短视觉风格描述（例如：极简主义风格，蓝色背景，金色几何图形），用于生成封面图。" },
     chapters: {
       type: Type.ARRAY,
-      description: "严格按照书籍的原始目录结构进行解析，不要跳过或合并任何章节。",
+      description: "严格按照书籍的原始目录结构进行解析，必须包含所有章节，严禁跳过、省略或合并任何章节。",
       items: {
         type: Type.OBJECT,
         properties: {
@@ -31,7 +31,7 @@ const bookAnalysisSchema: Schema = {
           keyQuotes: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: "从该章节原文中摘录3-5段最能体现核心观点的原话（Original Text Quotes），便于读者直接阅读精彩原文。"
+            description: "核心原文摘要：直接摘录该章节中跟核心观点有关的原文部分，3-5段，便于阅读原文精彩之处。"
           }
         },
         required: ["chapterTitle", "summary", "corePoints", "novelInsights", "keyQuotes"]
@@ -91,9 +91,11 @@ export const analyzeBook = async (
     
     请严格遵循以下要求：
     1. **全书简介**：首先提供一份精彩的全书简介。
-    2. **完整章节解析**：必须严格按照书籍的**原始目录**（Table of Contents）进行解析，**严禁跳过、省略或合并任何章节**。每一章都要单独分析。
+    2. **完整章节解析（重要）**：
+       - 必须严格按照书籍的**原始目录**（Table of Contents）进行解析。
+       - **严禁跳过、省略或合并任何章节**。即便是序言、后记或较短的章节，如果目录中有，也必须单独列出分析。
        - **详实摘要**（Summary）：不要只是简单的概括，要包含作者的具体论证逻辑、关键案例和细节。
-       - **核心原文摘录**（Key Quotes）：每一章必须摘录3-5段**原文**（直接引用书中的原话），这些原话应能最直接地体现该章的核心思想或精彩论述。
+       - **核心原文摘要**（Key Quotes/Original Text）：这是非常重要的新增模块。每一章必须直接摘录3-5段**跟核心观点有关的原文**。请选择最精彩、最能代表作者思想的原话。
        - **新颖观点**（Novel Insights）：挖掘独特、反直觉或最具启发性的洞见。
     3. **跨书籍索引（Cross-Reference）**：提炼全书最重要的10个核心思想。针对每个思想，列出其他具有**相似观点**的书籍，以及具有**完全相反或对立观点**的书籍。
        **关键要求**：在解释关联（explanation）时，必须深入详尽。不要只说“观点类似”，而要具体解释“《某某书》通过XX案例/理论，也提出了类似的YY观点，但侧重于ZZ方面”。每条解释应是一段有深度的文字。
