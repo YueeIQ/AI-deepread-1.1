@@ -76,7 +76,7 @@ export const analyzeBook = async (
   inputValue: string | File
 ): Promise<BookAnalysisResult> => {
   const apiKey = process.env.API_KEY;
-  if (!apiKey) throw new Error("未找到 API Key");
+  if (!apiKey) throw new Error("API Key 缺失，请检查环境变量配置。");
 
   const ai = new GoogleGenAI({ apiKey });
   
@@ -187,7 +187,7 @@ export const sendChatMessage = async (
   bookContext: BookAnalysisResult | null
 ): Promise<string> => {
   const apiKey = process.env.API_KEY;
-  if (!apiKey) throw new Error("未找到 API Key");
+  if (!apiKey) throw new Error("API Key 缺失");
 
   const ai = new GoogleGenAI({ apiKey });
   

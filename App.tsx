@@ -37,27 +37,19 @@ const App: React.FC = () => {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
             setReadLogs(parsed);
-            // Default to history view
-            if (parsed.length === 0) {
-                setStatus(AppStatus.IDLE);
-            }
+            if (parsed.length === 0) setStatus(AppStatus.IDLE);
         } else {
             setReadLogs([]);
-            setStatus(AppStatus.IDLE);
         }
       } catch (e) {
         console.error("Failed to load history", e);
         setReadLogs([]);
       }
-    } else {
-        setStatus(AppStatus.IDLE);
-        setReadLogs([]);
     }
   }, []);
 
   // Calculate stats whenever logs change
   useEffect(() => {
-    // Defensive check to ensure readLogs is an array
     if (!Array.isArray(readLogs)) return;
 
     const now = new Date();
@@ -104,7 +96,7 @@ const App: React.FC = () => {
     setStatus(AppStatus.ANALYZING);
     setErrorMsg(null);
     setCurrentBookIsRead(false); 
-    setActiveTab('summary'); // Switch view immediately to show loading
+    setActiveTab('summary'); 
 
     try {
       const result = await analyzeBook(mode, value);
@@ -232,7 +224,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-paper-50 text-ink-800 font-sans">
+    <div className="h-screen flex flex-col bg-paper-50 text-ink-800 font-sans relative">
       
       {/* Top Navigation Bar with Glassmorphism */}
       <header className="bg-white/90 backdrop-blur-md border-b border-paper-200 px-8 h-24 flex items-center justify-between flex-shrink-0 z-30 sticky top-0 shadow-sm">
