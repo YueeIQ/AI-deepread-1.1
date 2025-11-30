@@ -70,17 +70,48 @@ const bookAnalysisSchema: Schema = {
   required: ["title", "author", "introduction", "chapters", "crossReferences"]
 };
 
+// Safe API Key retrieval function that works in both Vite/Vercel and Node/Preview environments
+const getApiKey = (): string => {
+  // 优先尝试 Vite 方式 (Vercel 部署环境)
+  // @ts-ignore
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    // @ts-ignore
+    return import.meta.env.VITE_GEMINI_API_KEY || '';
+  }
+  
+  // 降级尝试 Node 方式 (本地或 AI 预览环境)
+  // @ts-ignore
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env.API_KEY || process.env.VITE_GEMINI_API_KEY || '';
+  }
+  
+  return '';
+};
+
+// Helper function to initialize the client with error handling
+const getGenAIClient = () => {
+  const apiKey = getApiKey();
+  
+  console.log('正在尝试初始化 GoogleGenAI, API Key 状态:', apiKey ? '已检测到' : '缺失');
+
+  if (!apiKey) {
+    throw new Error("未找到 API Key，请检查环境变量配置 (VITE_GEMINI_API_KEY 或 API_KEY)。");
+  }
+
+  return new GoogleGenAI({ apiKey });
+};
+
 export const analyzeBook = async (
   mode: 'SEARCH' | 'PDF',
   inputValue: string | File
 ): Promise<BookAnalysisResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Initialize inside the function to avoid top-level errors and ensure env is loaded
+  const ai = getGenAIClient();
   
   // Use Pro model for deep analysis and large context
   const analysisModelId = "gemini-3-pro-preview"; 
 
   let contents: any;
-  let tools: any[] | undefined = undefined;
 
   const basePrompt = `
     请担任我的专业书籍阅读助手。你的任务是用中文提供一份非常详尽、深度的书籍结构化分析。
@@ -117,10 +148,10 @@ export const analyzeBook = async (
     };
   } else {
     // Search Mode
-    tools = [{ googleSearch: {} }];
+    // Note: googleSearch tool is not used here because it cannot be combined with responseSchema.
     contents = {
       parts: [{
-        text: `请搜索书籍 "${inputValue}"。通过阅读网络上详尽的摘要、书评、解读和深度分析文章，全面理解其内容。然后，${basePrompt}`
+        text: `请深度分析书籍 "${inputValue}"。${basePrompt}`
       }]
     };
   }
@@ -130,10 +161,8 @@ export const analyzeBook = async (
     model: analysisModelId,
     contents: contents,
     config: {
-      tools: tools,
       responseMimeType: "application/json",
       responseSchema: bookAnalysisSchema,
-      thinkingConfig: { thinkingBudget: 4096 } 
     }
   });
 
@@ -183,7 +212,8 @@ export const sendChatMessage = async (
   newMessage: string, 
   bookContext: BookAnalysisResult | null
 ): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Initialize inside the function
+  const ai = getGenAIClient();
   
   // Use Flash for faster chat response
   const modelId = "gemini-2.5-flash";
