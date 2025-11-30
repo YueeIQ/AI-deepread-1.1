@@ -1,0 +1,5 @@
+{
+  "name": "DeepRead AI 1.1",
+  "description": "An intelligent reading agent that analyzes books from PDF or Search, generates structured summaries with novel insights, finds cross-references in other literature, and chats with you about the content.",
+  "requestFramePermissions": []
+}
