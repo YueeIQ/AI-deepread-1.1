@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { BookAnalysisResult, ChatMessage } from "../types";
 
@@ -75,7 +74,6 @@ export const analyzeBook = async (
   mode: 'SEARCH' | 'PDF',
   inputValue: string | File
 ): Promise<BookAnalysisResult> => {
-  // Use process.env.API_KEY directly as per guidelines
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   // Use Pro model for deep analysis and large context
@@ -185,7 +183,6 @@ export const sendChatMessage = async (
   newMessage: string, 
   bookContext: BookAnalysisResult | null
 ): Promise<string> => {
-  // Use process.env.API_KEY directly as per guidelines
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   // Use Flash for faster chat response
