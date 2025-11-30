@@ -17,7 +17,7 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ink-900/60 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ink-900/60 backdrop-blur-sm px-4 animate-fade-in">
       <div className="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl border border-paper-200 animate-slide-up">
         <div className="flex flex-col items-center text-center mb-6">
           <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-amber-100">
@@ -43,7 +43,7 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSave }) => {
 
           <div className="bg-blue-50 p-4 rounded-xl flex items-start space-x-3">
              <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-             <p className="text-xs text-blue-800 leading-relaxed">
+             <p className="text-xs text-blue-800 leading-relaxed text-left">
                您的 Key 将仅存储在您浏览器的 <strong>本地缓存 (LocalStorage)</strong> 中，绝不会发送到除 Google API 以外的任何服务器。
              </p>
           </div>

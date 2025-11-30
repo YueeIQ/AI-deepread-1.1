@@ -35,23 +35,21 @@ const App: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-            setReadLogs(parsed);
-            if (parsed.length === 0) setStatus(AppStatus.IDLE);
-        } else {
-            setReadLogs([]);
+        setReadLogs(parsed);
+        // Default to history view
+        if (parsed.length === 0) {
+           setStatus(AppStatus.IDLE);
         }
       } catch (e) {
         console.error("Failed to load history", e);
-        setReadLogs([]);
       }
+    } else {
+        setStatus(AppStatus.IDLE);
     }
   }, []);
 
   // Calculate stats whenever logs change
   useEffect(() => {
-    if (!Array.isArray(readLogs)) return;
-
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const thisYear = now.getFullYear();
@@ -65,7 +63,6 @@ const App: React.FC = () => {
     };
 
     readLogs.forEach(log => {
-      if (!log || !log.completedAt) return;
       const logDate = new Date(log.completedAt);
       if (logDate >= oneWeekAgo) newStats.thisWeek++;
       if (logDate.getFullYear() === thisYear) {
@@ -96,7 +93,7 @@ const App: React.FC = () => {
     setStatus(AppStatus.ANALYZING);
     setErrorMsg(null);
     setCurrentBookIsRead(false); 
-    setActiveTab('summary'); 
+    setActiveTab('summary'); // Switch view immediately to show loading
 
     try {
       const result = await analyzeBook(mode, value);
@@ -114,8 +111,7 @@ const App: React.FC = () => {
       setActiveTab('summary');
       setIsChatOpen(false); // Reset chat state
       
-      const logs = Array.isArray(readLogs) ? readLogs : [];
-      const alreadyRead = logs.some(log => log.title === result.title);
+      const alreadyRead = readLogs.some(log => log.title === result.title);
       setCurrentBookIsRead(alreadyRead);
 
       // Reset chat for new book session
@@ -158,7 +154,7 @@ const App: React.FC = () => {
         timestamp: Date.now()
       };
       setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error", error);
     } finally {
       setIsChatSending(false);
@@ -169,8 +165,7 @@ const App: React.FC = () => {
     if (!bookData) return;
     if (currentBookIsRead) return;
 
-    const currentLogs = Array.isArray(readLogs) ? readLogs : [];
-    const filteredLogs = currentLogs.filter(l => l.title !== bookData.title);
+    const filteredLogs = readLogs.filter(l => l.title !== bookData.title);
 
     const newLog: ReadBookLog = {
       id: Date.now().toString(),
@@ -269,8 +264,8 @@ const App: React.FC = () => {
         {/* Left/Center Panel: Content */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-paper-50 relative">
             
-            {/* INPUT / EMPTY STATE (Shown in History Tab if empty or corrupted logs) */}
-            {(status === AppStatus.IDLE && activeTab === 'history' && (!readLogs || readLogs.length === 0)) && (
+            {/* INPUT / EMPTY STATE (Shown in History Tab if empty) */}
+            {(status === AppStatus.IDLE && activeTab === 'history' && readLogs.length === 0) && (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 animate-fade-in">
                     <div className="w-full max-w-3xl">
                          <BookInput onAnalyze={handleAnalyze} isLoading={false} />
@@ -328,7 +323,7 @@ const App: React.FC = () => {
             )}
 
             {/* HISTORY VIEW */}
-            {activeTab === 'history' && Array.isArray(readLogs) && readLogs.length > 0 && (
+            {activeTab === 'history' && (readLogs.length > 0 || status === AppStatus.IDLE) && (
                  <div className="flex-1 overflow-y-auto custom-scrollbar bg-paper-50">
                     <div className="max-w-7xl mx-auto px-8 py-12 w-full">
                         {/* Input Area in History Tab for easy access */}

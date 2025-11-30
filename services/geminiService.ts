@@ -75,10 +75,8 @@ export const analyzeBook = async (
   mode: 'SEARCH' | 'PDF',
   inputValue: string | File
 ): Promise<BookAnalysisResult> => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) throw new Error("API Key 缺失，请检查环境变量配置。");
-
-  const ai = new GoogleGenAI({ apiKey });
+  // Use process.env.API_KEY directly as per guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   // Use Pro model for deep analysis and large context
   const analysisModelId = "gemini-3-pro-preview"; 
@@ -159,8 +157,9 @@ export const analyzeBook = async (
     Style description: ${result.coverImageDescription || 'Minimalist, elegant, award-winning design'}. 
     The cover should be visually striking, suitable for a digital library. No text overlays.`;
     
+    // Use the latest Imagen model
     const imageResponse = await ai.models.generateImages({
-      model: 'imagen-3.0-generate-001',
+      model: 'imagen-4.0-generate-001',
       prompt: coverPrompt,
       config: {
         numberOfImages: 1,
@@ -186,10 +185,8 @@ export const sendChatMessage = async (
   newMessage: string, 
   bookContext: BookAnalysisResult | null
 ): Promise<string> => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) throw new Error("API Key 缺失");
-
-  const ai = new GoogleGenAI({ apiKey });
+  // Use process.env.API_KEY directly as per guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   // Use Flash for faster chat response
   const modelId = "gemini-2.5-flash";
